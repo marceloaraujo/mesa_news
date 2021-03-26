@@ -1,0 +1,5 @@
+{
+    "editor.formatOnSaveMode": "modifications",
+    "java.format.onType.enabled": false,
+    "dart.enableSdkFormatter": false
+}
