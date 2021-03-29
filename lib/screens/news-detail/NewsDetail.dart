@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mesa_news/entities/News.dart';
 import 'package:mesa_news/utils/ColorUtils.dart';
+import 'package:share/share.dart';
 
 class NewsDetail extends StatefulWidget {
 
@@ -18,6 +19,10 @@ class _NewsDetailState extends State<NewsDetail> {
   String formatDate(DateTime publishedAt) {
     String formattedDate = DateFormat('dd/MM/yyyy HH:mm').format(publishedAt);
     return formattedDate;
+  }
+
+  _shareNews() {
+    Share.share('${widget._news.getTitle()} \n\n ${widget._news.getUrl()}');
   }
 
   @override
@@ -79,9 +84,7 @@ class _NewsDetailState extends State<NewsDetail> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: (){
-          
-        },
+        onPressed: _shareNews,
         backgroundColor: ColorUtils.getColorFromHex('#010A53'),
         child: Icon(
           Icons.share
