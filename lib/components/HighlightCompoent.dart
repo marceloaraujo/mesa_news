@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mesa_news/entities/News.dart';
+import 'package:mesa_news/screens/news-detail/NewsDetail.dart';
+import 'package:uuid/uuid.dart';
 
 class HighlightComponent extends StatefulWidget {
 
@@ -26,58 +28,69 @@ class _HighlightComponentState extends State<HighlightComponent> {
   
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 130,
-      child: Card(
-        child: Row(
-          children: [
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (_) => NewsDetail(widget._news)));
+      },
+      child: Container(
+        height: 130,
+        child: Card(
+          child: Row(
+            children: [
 
-            Image.network(
-              widget._news.getImageUrl(),
-              height: 130,
-              width: 100,
-              fit: BoxFit.cover,
-            ),
-
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.all(5),
-                child: Column(
-                  children: [
-                    Text(
-                      widget._news.getTitle(),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 4,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold
-                      ),
-                    ),
-
-                    Padding(
-                      padding: EdgeInsets.only(top: 10, bottom: 10, right: 10),
-                      child: Row(
-                        children: [
-                          GestureDetector(
-                            onTap: (){},
-                            child: Icon(
-                              Icons.bookmark_border
-                            ),
-                          ),
-                          Text(
-                            _calculateDate(widget._news.getPublishedAt())
-                          )
-                        ],
-                      ),
-                    )
-
-                  ],
+              Hero(
+                tag: widget._news.getUuid(),
+                transitionOnUserGestures: true,
+                child: Image.network(
+                  widget._news.getImageUrl(),
+                  height: 130,
+                  width: 100,
+                  fit: BoxFit.cover,
                 ),
-              )
-            )
+              ),
+              
 
-          ],
-        ),
-      )
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.all(5),
+                  child: Column(
+                    children: [
+                      Text(
+                        widget._news.getTitle(),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 4,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold
+                        ),
+                      ),
+
+                      Padding(
+                        padding: EdgeInsets.only(top: 10, bottom: 10, right: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            GestureDetector(
+                              onTap: (){},
+                              child: Icon(
+                                Icons.bookmark_border
+                              ),
+                            ),
+                            Text(
+                              _calculateDate(widget._news.getPublishedAt())
+                            )
+                          ],
+                        ),
+                      )
+
+                    ],
+                  ),
+                )
+              )
+
+            ],
+          ),
+        )
+      ),
     );
   }
 }

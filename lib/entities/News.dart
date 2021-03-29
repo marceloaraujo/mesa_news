@@ -1,14 +1,26 @@
+import 'package:uuid/uuid.dart';
+
 class News {
 
+  String _uuid;
   String _title;
   String _content;
+  String _description;
   String _author;
   DateTime _publishedAt;
   bool _highlight;
   String _url;
   String _imageUrl;
 
-  News(this._title, this._content, this._author, this._publishedAt, this._highlight, this._url, this._imageUrl);
+  News(this._uuid, this._title, this._content, this._description, this._author, this._publishedAt, this._highlight, this._url, this._imageUrl);
+
+  void setUuid(String uuid) {
+    this._uuid = uuid;
+  }
+
+  String getUuid() {
+    return _uuid;
+  }
 
   void setTitle(String title) {
     this._title = title;
@@ -24,6 +36,14 @@ class News {
 
   String getContent() {
     return _content;
+  }
+
+  String setDescription(String description) {
+    this._description = description;
+  }
+
+  String getDescription() {
+    return _description;
   }
 
   void setAuthor(String author) {
@@ -69,7 +89,9 @@ class News {
   factory News.fromJson(Map<String, dynamic> json) {
     DateTime publishedAt = DateTime.parse(json['published_at']);
     return News(
+      Uuid().v4(),
       json['title'],
+      json['content'],
       json['description'],
       json['author'],
       publishedAt,

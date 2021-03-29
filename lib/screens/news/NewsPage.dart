@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mesa_news/api/NewsApi.dart';
 import 'package:mesa_news/components/HighlightCompoent.dart';
+import 'package:mesa_news/components/NewsComponent.dart';
 import 'package:mesa_news/entities/News.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -11,15 +12,61 @@ class NewsPage extends StatefulWidget {
 
 class _NewsPageState extends State<NewsPage> {
 
+  int currentPage = 1;
+  List<News> newsList = [];
+
+  ScrollController scrollController;
+  bool _isLoading = false;
+
   _getToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = await prefs.getString('token');
     print('TOKEN >>> $token');
   }
 
+  _scrollListener() async {
+    if(!_isLoading) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
+    if(scrollController.position.pixels == scrollController.position.maxScrollExtent) {
+      currentPage++;
+      _getData();
+    }
+  }
+
+  @override
+  void initState() {
+    _getData();
+    super.initState();
+    scrollController = new ScrollController();
+    scrollController.addListener(_scrollListener);
+  }
+
+  _getData() async {
+    List<News> aux = await NewsApi().getNews(currentPage);
+    setState(() {
+      newsList.addAll(aux);
+    });
+  }
+
+  Widget _buildProgressIndicator() {
+    return new Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: new Center(
+        child: new Opacity(
+          opacity: _isLoading ? 1.0 : 00,
+          child: new CircularProgressIndicator(),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomPadding: false,
       appBar: AppBar(
         title: Text('Mesa News'),
       ),
@@ -27,6 +74,7 @@ class _NewsPageState extends State<NewsPage> {
         width: double.infinity,
         padding: EdgeInsets.all(16),
         child: SingleChildScrollView(
+          controller: scrollController,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -79,7 +127,7 @@ class _NewsPageState extends State<NewsPage> {
               ),
 
               Padding(
-                padding: EdgeInsets.only(top: 16),
+                padding: EdgeInsets.only(top: 16, bottom: 16),
                 child: Text(
                   'Últimas notícias',
                   style: TextStyle(
@@ -92,14 +140,18 @@ class _NewsPageState extends State<NewsPage> {
               Flexible(
                 child: Container(
                   child: ListView.builder(
+                    primary: false,
                     shrinkWrap: true,
                     physics: NeverScrollableScrollPhysics(),
                     addRepaintBoundaries: true,
-                    itemCount: 10,
+                    itemCount: newsList.length,
                     itemBuilder: (_, index) {
-                      return ListTile(
-                        title: Text('Texto $index'),
-                      );
+                      News news = newsList[index];
+                      if(index == newsList.length - 1) {
+                        return _buildProgressIndicator();
+                      } else {
+                        return NewsComponent(news);
+                      }
                     }
                   )
                 ),
