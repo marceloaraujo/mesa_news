@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mesa_news/entities/News.dart';
 import 'package:mesa_news/screens/news-detail/NewsDetail.dart';
+import 'package:mesa_news/utils/BookmarkUtils.dart';
+import 'package:mesa_news/utils/UpdateListener.dart';
 import 'package:uuid/uuid.dart';
 
 class HighlightComponent extends StatefulWidget {
@@ -13,7 +15,9 @@ class HighlightComponent extends StatefulWidget {
   _HighlightComponentState createState() => _HighlightComponentState();
 }
 
-class _HighlightComponentState extends State<HighlightComponent> {
+class _HighlightComponentState extends State<HighlightComponent> implements UpdateListener {
+
+  BookmarkUtils bu;
   
   _calculateDate(DateTime publishedAt) {
     final now = DateTime.now();
@@ -25,12 +29,34 @@ class _HighlightComponentState extends State<HighlightComponent> {
     }
     return '$diff horas atrás';
   }
+
+  toggleBookmark() {
+    setState(() {
+      if(!bu.checkIsInBookmark(widget._news)) {
+        bu.addBookmark(widget._news);
+      } else {
+        bu.removeBookmark(widget._news);
+      }
+    });
+  }
+
+  @override
+  void update() {
+    setState(() {
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    bu = BookmarkUtils();
+  }
   
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (_) => NewsDetail(widget._news)));
+        Navigator.push(context, MaterialPageRoute(builder: (_) => NewsDetail(widget._news, this)));
       },
       child: Container(
         height: 130,
@@ -70,9 +96,9 @@ class _HighlightComponentState extends State<HighlightComponent> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             GestureDetector(
-                              onTap: (){},
+                              onTap: toggleBookmark,
                               child: Icon(
-                                Icons.bookmark_border
+                                bu.checkIsInBookmark(widget._news) ? Icons.bookmark : Icons.bookmark_border
                               ),
                             ),
                             Text(

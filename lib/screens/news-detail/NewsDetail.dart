@@ -1,20 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mesa_news/entities/News.dart';
+import 'package:mesa_news/utils/BookmarkUtils.dart';
 import 'package:mesa_news/utils/ColorUtils.dart';
+import 'package:mesa_news/utils/UpdateListener.dart';
 import 'package:share/share.dart';
 
 class NewsDetail extends StatefulWidget {
 
   News _news;
+  UpdateListener _listener;
 
-  NewsDetail(this._news);
+  NewsDetail(this._news, this._listener);
 
   @override
   _NewsDetailState createState() => _NewsDetailState();
 }
 
 class _NewsDetailState extends State<NewsDetail> {
+
+  BookmarkUtils bu;
 
   String formatDate(DateTime publishedAt) {
     String formattedDate = DateFormat('dd/MM/yyyy HH:mm').format(publishedAt);
@@ -23,6 +28,23 @@ class _NewsDetailState extends State<NewsDetail> {
 
   _shareNews() {
     Share.share('${widget._news.getTitle()} \n\n ${widget._news.getUrl()}');
+  }
+
+  toggleBookmark() {
+    setState(() {
+      if(!bu.checkIsInBookmark(widget._news)) {
+        bu.addBookmark(widget._news);
+      } else {
+        bu.removeBookmark(widget._news);
+      }
+    });
+    widget._listener.update();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    bu = BookmarkUtils();
   }
 
   @override
@@ -50,9 +72,12 @@ class _NewsDetailState extends State<NewsDetail> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   
-                  Icon(
-                    Icons.bookmark_border,
-                    size: 40,
+                  GestureDetector(
+                    onTap: toggleBookmark,
+                    child: Icon(
+                      bu.checkIsInBookmark(widget._news) ? Icons.bookmark : Icons.bookmark_border,
+                      size: 40,
+                    ),
                   ),
 
                   Text(

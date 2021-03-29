@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mesa_news/entities/News.dart';
 import 'package:mesa_news/screens/news-detail/NewsDetail.dart';
+import 'package:mesa_news/utils/BookmarkUtils.dart';
+import 'package:mesa_news/utils/UpdateListener.dart';
 
 class NewsComponent extends StatefulWidget {
 
@@ -12,7 +14,9 @@ class NewsComponent extends StatefulWidget {
   _NewsComponentState createState() => _NewsComponentState();
 }
 
-class _NewsComponentState extends State<NewsComponent> {
+class _NewsComponentState extends State<NewsComponent> implements UpdateListener {
+
+  BookmarkUtils bu;
 
   _calculateDate(DateTime publishedAt) {
     final now = DateTime.now();
@@ -26,11 +30,35 @@ class _NewsComponentState extends State<NewsComponent> {
   }
 
   @override
+  void update() {
+    setState(() {
+    });
+  }
+
+  toggleBookmark() {
+    setState(() {
+      if(!bu.checkIsInBookmark(widget._news)) {
+        bu.addBookmark(widget._news);
+      } else {
+        bu.removeBookmark(widget._news);
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    bu = BookmarkUtils();
+  }
+
+  openNewsDetail() {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => NewsDetail(widget._news, this)));
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (_) => NewsDetail(widget._news)));
-      },
+      onTap: openNewsDetail,
       child: Container(
         height: 270,
         child: Card(
@@ -54,8 +82,8 @@ class _NewsComponentState extends State<NewsComponent> {
                     children: [
 
                       GestureDetector(
-                        onTap: (){},
-                        child: Icon(Icons.bookmark_border),
+                        onTap: toggleBookmark,
+                        child: bu.checkIsInBookmark(widget._news) ? Icon(Icons.bookmark) : Icon(Icons.bookmark_border),
                       ),
 
                       Text(
