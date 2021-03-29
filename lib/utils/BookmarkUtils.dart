@@ -27,4 +27,8 @@ class BookmarkUtils {
     return false;
   }
 
+  List<News> getBookmarkList() {
+    return _bookmark;
+  }
+
 }

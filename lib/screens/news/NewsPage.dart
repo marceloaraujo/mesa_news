@@ -3,6 +3,9 @@ import 'package:mesa_news/api/NewsApi.dart';
 import 'package:mesa_news/components/HighlightCompoent.dart';
 import 'package:mesa_news/components/NewsComponent.dart';
 import 'package:mesa_news/entities/News.dart';
+import 'package:mesa_news/screens/filter/FilterPage.dart';
+import 'package:mesa_news/utils/BookmarkUtils.dart';
+import 'package:mesa_news/utils/UpdateListener.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class NewsPage extends StatefulWidget {
@@ -10,13 +13,15 @@ class NewsPage extends StatefulWidget {
   _NewsPageState createState() => _NewsPageState();
 }
 
-class _NewsPageState extends State<NewsPage> {
+class _NewsPageState extends State<NewsPage> implements UpdateListener {
 
   int currentPage = 1;
   List<News> newsList = [];
 
   ScrollController scrollController;
   bool _isLoading = false;
+
+  bool _showBookmark = false;
 
   _getToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -30,10 +35,33 @@ class _NewsPageState extends State<NewsPage> {
         _isLoading = true;
       });
     }
-    if(scrollController.position.pixels == scrollController.position.maxScrollExtent) {
-      currentPage++;
-      _getData();
+    if(!_showBookmark) {
+      print(scrollController.position.maxScrollExtent);
+      if(scrollController.position.pixels == scrollController.position.maxScrollExtent) {
+        currentPage++;
+        _getData();
+      }
     }
+  }
+
+  toggleBookmarkNews() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isShowBookmark = prefs.getBool('show_bookmark');
+    setState(() {
+      _showBookmark = isShowBookmark;
+      if(_showBookmark) {
+        newsList = [];
+        newsList.addAll(BookmarkUtils().getBookmarkList());
+      } else {
+        newsList = [];
+        _getData();
+      }
+    });
+  }
+
+  @override
+  void update() {
+    toggleBookmarkNews();
   }
 
   @override
@@ -63,12 +91,22 @@ class _NewsPageState extends State<NewsPage> {
     );
   }
 
+  _openFilter() {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => FilterPage(this)));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomPadding: false,
       appBar: AppBar(
         title: Text('Mesa News'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.filter_list), 
+            onPressed: _openFilter
+          ),
+        ],
       ),
       body: Container(
         width: double.infinity,
@@ -148,7 +186,11 @@ class _NewsPageState extends State<NewsPage> {
                     itemBuilder: (_, index) {
                       News news = newsList[index];
                       if(index == newsList.length - 1) {
-                        return _buildProgressIndicator();
+                        if(!_showBookmark) {
+                          return _buildProgressIndicator();
+                        } else {
+                          return Container();
+                        }
                       } else {
                         return NewsComponent(news);
                       }
@@ -156,7 +198,6 @@ class _NewsPageState extends State<NewsPage> {
                   )
                 ),
               )
-              
 
             ],
 
