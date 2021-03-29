@@ -36,7 +36,6 @@ class _NewsPageState extends State<NewsPage> implements UpdateListener {
       });
     }
     if(!_showBookmark) {
-      print(scrollController.position.maxScrollExtent);
       if(scrollController.position.pixels == scrollController.position.maxScrollExtent) {
         currentPage++;
         _getData();

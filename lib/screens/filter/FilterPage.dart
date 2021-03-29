@@ -24,6 +24,13 @@ class _FilterPageState extends State<FilterPage> {
     Navigator.pop(context);
   }
 
+  _cleanFilter() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('show_bookmark', false);
+    widget._listener.update();
+    Navigator.pop(context);
+  }
+
   _getBookmarkConfig() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -42,6 +49,22 @@ class _FilterPageState extends State<FilterPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Filtro'),
+        actions: [
+
+          Padding(
+            padding: EdgeInsets.only(right: 16),
+            child: Center(
+              child: GestureDetector(
+                onTap: _cleanFilter,
+                child: Container(
+                  width: 50,
+                  child: Text('Limpar'),
+                ),
+              ),
+            )
+          )
+
+        ],
       ),
       body: Container(
         width: double.infinity,

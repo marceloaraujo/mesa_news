@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:mesa_news/screens/login/LoginPage.dart';
 import 'package:mesa_news/screens/login/NewUserPage.dart';
+import 'package:mesa_news/screens/news/NewsPage.dart';
 import 'package:mesa_news/utils/ColorUtils.dart';
+
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class InitialPage extends StatefulWidget {
   @override
@@ -22,6 +26,22 @@ class _InitialPageState extends State<InitialPage> {
     Navigator.push(context, 
       MaterialPageRoute(builder: (_) => NewUserPage())
     );
+  }
+
+  _doLoginFacebook() async {
+    final result = await FacebookAuth.instance.login(
+      permissions: ['email']
+    );
+    if(result != null) {
+      /**
+       * O token retornado pelo Facebook não poderá ser usado para 
+       * autenticação na API da Mesa, então, usarei um token válido para autenticar.
+       */
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('token', 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6NjA0LCJlbWFpbCI6Im1hcmNlbG8ucmRhcmF1am8xOTkxQGdtYWlsLmNvbSJ9.CM7osWE7mj4U0TQpo0xIyvVGWcKUfGtxtyzKgzKdU1c');
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_)  => NewsPage()), (route) => false);
+    }
   }
 
   @override
@@ -55,6 +75,31 @@ class _InitialPageState extends State<InitialPage> {
 
             Column(
               children: [
+
+                Padding(
+                  padding: EdgeInsets.only(bottom: 8),
+                  child: FlatButton(
+                    color: Colors.white,
+                    minWidth: double.infinity,
+                    height: 50,
+                    onPressed: _doLoginFacebook, 
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(
+                        color: Colors.white,
+                        width: 1,
+                        style: BorderStyle.solid
+                      ),
+                      borderRadius: BorderRadius.circular(10)
+                    ),
+                    child: Text(
+                      'Entrar com Facebook',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: Colors.blue
+                      ),
+                    )
+                  )
+                ),
                 
                 FlatButton(
                   minWidth: double.infinity,

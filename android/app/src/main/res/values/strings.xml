@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Mesa News</string>
+    <string name="facebook_app_id">895549194571779</string>
+    <string name="fb_login_protocol_scheme">fb895549194571779</string>
+</resources>

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:mesa_news/api/LoginApi.dart';
 import 'package:mesa_news/api/MesaResponse.dart';
 import 'package:mesa_news/screens/login/NewUserPage.dart';
@@ -68,6 +69,22 @@ class _LoginPageState extends State<LoginPage> {
       }
     } else {
       _showSnackbar('Campos marcados com * são obrigatórios.');
+    }
+  }
+
+  _doLoginFacebook() async {
+    final result = await FacebookAuth.instance.login(
+      permissions: ['email']
+    );
+    if(result != null) {
+      /**
+       * O token retornado pelo Facebook não poderá ser usado para 
+       * autenticação na API da Mesa, então, usarei um token válido para autenticar.
+       */
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('token', 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6NjA0LCJlbWFpbCI6Im1hcmNlbG8ucmRhcmF1am8xOTkxQGdtYWlsLmNvbSJ9.CM7osWE7mj4U0TQpo0xIyvVGWcKUfGtxtyzKgzKdU1c');
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_)  => NewsPage()), (route) => false);
     }
   }
 
@@ -167,7 +184,7 @@ class _LoginPageState extends State<LoginPage> {
                       FlatButton(
                         minWidth: double.infinity,
                         height: 50,
-                        onPressed: (){}, 
+                        onPressed: _doLoginFacebook, 
                         shape: RoundedRectangleBorder(
                           side: BorderSide(
                             color: ColorUtils.getColorFromHex('#010A53'),
