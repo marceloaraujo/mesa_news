@@ -98,10 +98,8 @@ class _NewsDetailState extends State<NewsDetail> {
 
             Padding(
               padding: EdgeInsets.only(top: 16, bottom: 16),
-              child: Expanded(
-                child: Text(
-                  widget._news.getDescription()
-                ),
+              child: Text(
+                widget._news.getDescription()
               )
             )
 

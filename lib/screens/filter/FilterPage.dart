@@ -34,7 +34,7 @@ class _FilterPageState extends State<FilterPage> {
   _getBookmarkConfig() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      isBookmark = prefs.getBool('show_bookmark');
+      isBookmark = prefs.getBool('show_bookmark') ?? false;
     });
   }
 

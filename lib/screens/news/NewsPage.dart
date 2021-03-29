@@ -45,7 +45,7 @@ class _NewsPageState extends State<NewsPage> implements UpdateListener {
 
   toggleBookmarkNews() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool isShowBookmark = prefs.getBool('show_bookmark');
+    bool isShowBookmark = prefs.getBool('show_bookmark') ?? false;
     setState(() {
       _showBookmark = isShowBookmark;
       if(_showBookmark) {
@@ -53,6 +53,7 @@ class _NewsPageState extends State<NewsPage> implements UpdateListener {
         newsList.addAll(BookmarkUtils().getBookmarkList());
       } else {
         newsList = [];
+        currentPage = 1;
         _getData();
       }
     });
@@ -65,7 +66,8 @@ class _NewsPageState extends State<NewsPage> implements UpdateListener {
 
   @override
   void initState() {
-    _getData();
+    // _getData();
+    toggleBookmarkNews();
     super.initState();
     scrollController = new ScrollController();
     scrollController.addListener(_scrollListener);
@@ -184,7 +186,8 @@ class _NewsPageState extends State<NewsPage> implements UpdateListener {
                     itemCount: newsList.length,
                     itemBuilder: (_, index) {
                       News news = newsList[index];
-                      if(index == newsList.length - 1) {
+                      int length = _showBookmark ? newsList.length : newsList.length - 1;
+                      if(index == length) {
                         if(!_showBookmark) {
                           return _buildProgressIndicator();
                         } else {
