@@ -45,8 +45,7 @@ class _NewsPageState extends State<NewsPage> implements UpdateListener {
 
   int _calculateDate(DateTime publishedAt) {
     final now = DateTime.now();
-    final diff = now.difference(publishedAt).inDays;
-    return diff;
+    return now.difference(publishedAt).inDays;
   }
 
   _applyFilters() async {
@@ -69,7 +68,7 @@ class _NewsPageState extends State<NewsPage> implements UpdateListener {
             }
           });
         } else {
-          newsList.addAll(BookmarkUtils().getBookmarkList());
+          newsList.addAll(aux);
         }
       } else {
         newsList = [];
