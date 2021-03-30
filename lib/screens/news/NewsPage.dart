@@ -43,14 +43,34 @@ class _NewsPageState extends State<NewsPage> implements UpdateListener {
     }
   }
 
-  toggleBookmarkNews() async {
+  int _calculateDate(DateTime publishedAt) {
+    final now = DateTime.now();
+    final diff = now.difference(publishedAt).inDays;
+    return diff;
+  }
+
+  _applyFilters() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool isShowBookmark = prefs.getBool('show_bookmark') ?? false;
+    int dateFilter = prefs.getInt('date_filter') ?? 0;
     setState(() {
       _showBookmark = isShowBookmark;
       if(_showBookmark) {
         newsList = [];
-        newsList.addAll(BookmarkUtils().getBookmarkList());
+        List<News> aux = BookmarkUtils().getBookmarkList();
+        /**
+         * 0 - Todas as noticias
+         * 1 - Notícias semanais
+         */
+        if(dateFilter == 1) {
+          aux.forEach((news) {
+            if(_calculateDate(news.getPublishedAt()) <= 7) {
+              newsList.add(news);
+            }
+          });
+        } else {
+          newsList.addAll(BookmarkUtils().getBookmarkList());
+        }
       } else {
         newsList = [];
         currentPage = 1;
@@ -61,13 +81,13 @@ class _NewsPageState extends State<NewsPage> implements UpdateListener {
 
   @override
   void update() {
-    toggleBookmarkNews();
+    _applyFilters();
   }
 
   @override
   void initState() {
     // _getData();
-    toggleBookmarkNews();
+    _applyFilters();
     super.initState();
     scrollController = new ScrollController();
     scrollController.addListener(_scrollListener);
@@ -75,8 +95,18 @@ class _NewsPageState extends State<NewsPage> implements UpdateListener {
 
   _getData() async {
     List<News> aux = await NewsApi().getNews(currentPage);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int dateFilter = prefs.getInt('date_filter') ?? 0;
     setState(() {
-      newsList.addAll(aux);
+      if(dateFilter == 1) {
+        aux.forEach((news) {
+          if(_calculateDate(news.getPublishedAt()) <= 7) {
+            newsList.add(news);
+          }
+        });
+      } else {
+        newsList.addAll(aux);
+      }
     });
   }
 
